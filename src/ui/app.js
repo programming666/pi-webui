@@ -2088,16 +2088,7 @@ async function refreshContextView() {
 	errEl.classList.add("hidden");
 	try {
 		const res = await request("context_view");
-		if (!res?.success) {
-			const msg = res?.error ?? d["context.not-ready"];
-			errEl.textContent = msg;
-			errEl.classList.remove("hidden");
-			$("context-summary").innerHTML = "";
-			$("context-usage-body").innerHTML = "";
-			$("context-injections-body").innerHTML = "";
-			return;
-		}
-		contextData = res.data;
+		contextData = res;
 		renderContextSummary(contextData);
 		renderContextUsage(contextData);
 		renderContextInjections(contextData);
