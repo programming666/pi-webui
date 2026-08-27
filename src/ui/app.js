@@ -2125,6 +2125,7 @@ function renderContextSummary(data) {
 }
 
 function renderContextUsage(data) {
+	const d = I18N[lang()] || I18N.en;
 	const body = $("context-usage-body");
 	const categories = data.usage?.categories ?? [];
 	const total = categories.reduce((s, c) => s + (c.tokens || 0), 0) || 1;
@@ -2185,6 +2186,7 @@ function renderContextUsage(data) {
 }
 
 function renderContextInjections(data) {
+	const d = I18N[lang()] || I18N.en;
 	const body = $("context-injections-body");
 	const items = data.snapshot?.items ?? [];
 	const total = items.reduce((s, it) => s + (it.tokens || 0), 0) || 1;
