@@ -1,5 +1,7 @@
 # pi-webui — the Pi extension
 
+
+![认可linux.do](https://ld.xh.do/ld-badge.svg)
 > 🇨🇳 中文版本：[`README.zh-CN.md`](README.zh-CN.md)
 
 A pi extension that bridges the active pi session to a local HTTP +
