@@ -4,6 +4,11 @@
 	"description": "Web UI bridge for Pi coding agent — exposes the agent session over HTTP/WebSocket so a browser extension (or any HTTP+WS client) can drive the TUI.",
 	"type": "module",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/programming666/pi-webui.git"
+	},
+	"homepage": "https://github.com/programming666/pi-webui",
 	"keywords": [
 		"pi",
 		"pi-coding-agent",
