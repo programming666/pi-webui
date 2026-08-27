@@ -2,16 +2,16 @@
 
 
 ![认可linux.do](https://ld.xh.do/ld-badge.svg)
-> 🇨🇳 中文版本：[`README.zh-CN.md`](README.zh-CN.md)
+> 🇨🇳 中文版本：[`README.zh-CN.md`](https://github.com/programming666/pi-webui/blob/main/README.zh-CN.md)
 
 A pi extension that bridges the active pi session to a local HTTP +
-WebSocket server. Paired with the [`browser-extension/`](../browser-extension/)
+WebSocket server. Paired with the [`browser-extension/`](https://github.com/programming666/pi-webui/tree/main/browser-extension)
 side panel, it lets you drive your pi agent entirely from Chrome.
 
 ## What it does
 
 - Listens on `http://127.0.0.1:9777` by default.
-- Speaks a small JSON protocol (see [`src/types.ts`](src/types.ts)).
+- Speaks a small JSON protocol (see [`src/types.ts`](https://github.com/programming666/pi-webui/blob/main/src/types.ts)).
 - Forwards every pi session event (message updates, tool calls, model
   switches, compaction, session transitions, …) over a WebSocket.
 - Accepts requests for prompt / steer / follow-up / abort / model /
@@ -77,4 +77,4 @@ emits the response. A 10-second timeout protects against lost replies.
 
 ## License
 
-MIT. See [`package.json`](package.json).
+MIT. See [`package.json`](https://github.com/programming666/pi-webui/blob/main/package.json).

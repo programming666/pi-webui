@@ -2,14 +2,14 @@
 
 
 ![认可linux.do](https://ld.xh.do/ld-badge.svg)
-> 🇬🇧 English version: [`README.md`](README.md)
+> 🇬🇧 English version: [`README.md`](https://github.com/programming666/pi-webui/blob/main/README.md)
 
-一个 Pi 扩展，把活跃的 pi 会话桥接到本地 HTTP + WebSocket 服务器。配合 [`browser-extension/`](../browser-extension/) 侧边栏使用，可以在 Chrome 中完全驱动 pi agent。
+一个 Pi 扩展，把活跃的 pi 会话桥接到本地 HTTP + WebSocket 服务器。配合 [`browser-extension/`](https://github.com/programming666/pi-webui/tree/main/browser-extension) 侧边栏使用，可以在 Chrome 中完全驱动 pi agent。
 
 ## 它做什么
 
 - 默认监听 `http://127.0.0.1:9777`。
-- 使用一套简洁的 JSON 协议（见 [`src/types.ts`](src/types.ts)）。
+- 使用一套简洁的 JSON 协议（见 [`src/types.ts`](https://github.com/programming666/pi-webui/blob/main/src/types.ts)）。
 - 通过 WebSocket 转发每一个 pi 会话事件（消息更新、工具调用、模型切换、压缩、会话切换……）。
 - 接收 prompt / steer / follow-up / abort / 模型 / 思考 / 工具 / 会话操作 等请求。
 - 提供一组 REST 端点作为一次性客户端的备用入口。
@@ -61,4 +61,4 @@ src/
 
 ## 许可证
 
-MIT。详见 [`package.json`](package.json)。
+MIT。详见 [`package.json`](https://github.com/programming666/pi-webui/blob/main/package.json)。
