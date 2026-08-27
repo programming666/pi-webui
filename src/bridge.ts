@@ -301,7 +301,7 @@ export class PiBridge {
 			waitForIdle: (opts?: { timeoutMs?: number }) => Promise<void>;
 		}>;
 		try {
-			if (command.waitForIdle) await command.waitForIdle({ timeoutMs: 15000 });
+			if (command.waitForIdle) await Promise.race([command.waitForIdle({ timeoutMs: 3000 }), new Promise((res) => setTimeout(res, 3000))]);
 			const systemPrompt = (ctx as { getSystemPrompt?: () => string }).getSystemPrompt?.() ?? "";
 			const options = command.getSystemPromptOptions?.() ?? { cwd: process.cwd() };
 			const allTools = this.pi.getAllTools();
