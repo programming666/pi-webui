@@ -1,6 +1,6 @@
 {
 	"name": "@failed-to-load/pi-webui",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Web UI bridge for Pi coding agent — exposes the agent session over HTTP/WebSocket so a browser extension (or any HTTP+WS client) can drive the TUI.",
 	"type": "module",
 	"license": "MIT",
