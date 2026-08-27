@@ -1655,7 +1655,7 @@ function runSlashCommand(raw) {
 		case "help": openHelp(); return true;
 		case "settings": openSettings(); return true;
 		case "abort": abort(); return true;
-		case "disconnect": state.ws?.close(); return true;
+		case "context": openContextDialog(); return true;
 		case "reconnect": connect(); return true;
 		default: return false;
 	}
@@ -1675,7 +1675,7 @@ function openSlashMenu(filter) {
 		{ name: "theme", description: I18N[lang()]?.["cmd.theme"] },
 		{ name: "lang", description: I18N[lang()]?.["cmd.lang"] },
 		{ name: "help", description: I18N[lang()]?.["cmd.help"] },
-		{ name: "settings", description: I18N[lang()]?.["cmd.settings"] },
+		{ name: "context", description: I18N[lang()]?.["cmd.context"] },
 		{ name: "abort", description: I18N[lang()]?.["cmd.abort"] },
 	];
 	// union with pi extension commands
