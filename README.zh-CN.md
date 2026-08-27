@@ -1,5 +1,7 @@
 # pi-webui — Pi 扩展（中文）
 
+
+![认可linux.do](https://ld.xh.do/ld-badge.svg)
 > 🇬🇧 English version: [`README.md`](README.md)
 
 一个 Pi 扩展，把活跃的 pi 会话桥接到本地 HTTP + WebSocket 服务器。配合 [`browser-extension/`](../browser-extension/) 侧边栏使用，可以在 Chrome 中完全驱动 pi agent。
