@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title data-i18n="title">pi-webui</title>
+	<meta name="description" data-i18n="description" content="Browser companion for the pi agent webui extension" />
+	<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'&gt;&lt;rect width='32' height='32' rx='6' fill='%234f8cf7'/&gt;&lt;text x='16' y='23' font-size='18' text-anchor='middle' fill='white' font-family='system-ui' font-weight='600'&gt;π&lt;/text&gt;&lt;/svg&gt;" />
+	<link rel="stylesheet" href="app.css" />
+	<script>window.MathJax = { tex: { inlineMath: [['\\\\(','\\\\)'], ['$','$']], displayMath: [['\\\\[','\\\\]'], ['$$','$$']] }, options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }, startup: { elements: [] } };</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+	<script>// MathJax 加载完成后,对现有消息全量 typeset 一次(replay 时可能比 MathJax 先完成)
+	if (window.MathJax && window.MathJax.startup) {
+		window.MathJax.startup.promise = window.MathJax.startup.promise.then(() => {
+			setTimeout(() => {
+				var m = document.getElementById('messages');
+				if (m && window.MathJax.typesetPromise) window.MathJax.typesetPromise([m]).catch(function () {});
+			}, 800);
+			return window.MathJax.startup.originalPromise || Promise.resolve();
+		});
+	}</script>
+</head>
+<body>
+	<!-- ─────────── Top bar ─────────── -->
+	<header class="topbar">
+		<div class="brand">
+			<div class="logo" aria-hidden="true">π</div>
+			<div class="brand-text">
+				<div class="brand-title" data-i18n="brand.title">pi-webui</div>
+				<div class="brand-sub">
+					<span id="status-dot" class="dot disconnected" aria-hidden="true"></span>
+					<span id="status-text" data-i18n="status.disconnected">disconnected</span>
+					<span id="connection-detail" class="brand-sub-detail"></span>
+				</div>
+			</div>
+		</div>
+		<div class="topbar-spacer"></div>
+		<div class="meta">
+			<span id="mode" class="chip chip-soft" data-i18n="mode.loading">loading…</span>
+			<span id="busy" class="chip chip-warn hidden" data-i18n="mode.busy">busy</span>
+		</div>
+		<div class="topbar-actions">
+			<button id="palette" class="btn btn-ghost btn-pad" data-i18n-attr-title="palette.title" title="Command palette (Ctrl+K)">
+				<span class="kbd-hint">⌘K</span>
+				<span data-i18n="palette.button">palette</span>
+			</button>
+			<button id="help-btn" class="icon-btn" data-i18n-attr-title="help.title" title="Help (F1)" aria-label="Help">?</button>
+			<button id="theme-toggle" class="icon-btn" data-i18n-attr-title="theme.toggle" title="Toggle theme" aria-label="Toggle theme">
+				<span class="theme-icon-dark" aria-hidden="true">🌙</span>
+				<span class="theme-icon-light" aria-hidden="true">☀️</span>
+			</button>
+			<button id="lang-toggle" class="icon-btn" data-i18n-attr-title="lang.toggle" title="Toggle language" aria-label="Toggle language">
+				<span class="lang-icon-en" aria-hidden="true">EN</span>
+				<span class="lang-icon-zh" aria-hidden="true">中</span>
+			</button>
+			<button id="abort" class="btn btn-danger" data-i18n="abort" data-i18n-attr-title="abort.title" title="Abort current turn (Esc)" disabled>abort</button>
+			<button id="settings-btn" class="icon-btn" data-i18n-attr-title="settings.title" title="Settings" aria-label="Settings">⚙</button>
+		</div>
+	</header>
+
+	<!-- ─────────── Sidebar ─────────── -->
+	<aside class="sidebar">
+		<!-- Model -->
+		<section class="card">
+			<div class="card-row">
+				<label for="model" data-i18n="label.model">model</label>
+				<select id="model" class="select" data-i18n-attr-title="label.model.title" title="Pick a model">
+				<option data-i18n="select.loading" value="">loading…</option>
+				</select>
+			</div>
+			<div class="card-row">
+				<label for="thinking" data-i18n="label.thinking">thinking</label>
+				<div class="thinking-row">
+					<select id="thinking" class="select" data-i18n-attr-title="label.thinking.title" title="Thinking level (Ctrl+T to cycle)">
+					<option data-i18n="select.loading" value="">loading…</option>
+					</select>
+					<button id="cycle-thinking" class="icon-btn" data-i18n-attr-title="cycle-thinking.title" title="Cycle thinking level (Ctrl+T)">⟳</button>
+				</div>
+			</div>
+			<div class="card-row" id="cwd-row" hidden>
+				<label data-i18n="label.cwd">cwd</label>
+				<code id="cwd" class="mono"></code>
+			</div>
+		</section>
+
+		<!-- Session -->
+		<section class="card">
+			<div class="card-row">
+				<label for="session-name" data-i18n="label.session">session name</label>
+				<input id="session-name" type="text" class="text-input" data-i18n-attr-placeholder="placeholder.unnamed" placeholder="(unnamed)" />
+			</div>
+			<div class="btn-grid">
+				<button id="new-session" class="btn btn-ghost" data-i18n="session-ops.new" title="/new">new</button>
+				<button id="fork-current" class="btn btn-ghost" data-i18n="session-ops.fork" title="/fork">fork</button>
+				<button id="compact" class="btn btn-ghost" data-i18n="session-ops.compact" title="/compact">compact</button>
+				<button id="reload" class="btn btn-ghost" data-i18n="session-ops.reload" title="/reload">reload</button>
+				<button id="rename-session" class="btn btn-ghost" data-i18n="session-ops.rename" title="/name">name</button>
+				<button id="export-session" class="btn btn-ghost" data-i18n="session-ops.export" title="/export">export</button>
+			</div>
+			<p class="hint" id="session-hint" data-i18n="session-ops.hint">Run <code>/webui-setup</code> in your terminal for session ops.</p>
+		</section>
+
+		<!-- Tools -->
+		<details class="card collapsible" open>
+			<summary>
+				<span data-i18n="tools.label">tools</span>
+				<span class="count-badge"><span id="active-tool-count">0</span>/<span id="total-tool-count">0</span></span>
+			</summary>
+			<div id="tools-list" class="tools-list"></div>
+		</details>
+
+		<!-- Commands (mirrors TUI slash palette) -->
+		<details class="card collapsible">
+			<summary data-i18n="commands.label">commands</summary>
+			<div id="commands-list" class="commands-list"></div>
+		</details>
+
+		<!-- History / Tree -->
+		<details class="card collapsible" open>
+			<summary>
+				<span data-i18n="history.label">history</span>
+				<button id="refresh-tree" class="icon-btn" data-i18n-attr-title="session-ops.refresh" title="Refresh history" aria-label="Refresh">⟳</button>
+			</summary>
+			<div id="tree-list" class="tree-list">
+				<div class="empty-state" data-i18n="history.empty">no history yet</div>
+			</div>
+		</details>
+	</aside>
+
+	<!-- ─────────── Messages ─────────── -->
+	<main id="messages" class="messages" aria-live="polite"></main>
+
+	<!-- ─────────── Empty state ─────────── -->
+	<div id="empty-state" class="messages-empty hidden">
+		<div class="messages-empty-icon" aria-hidden="true">π</div>
+		<div class="messages-empty-title" data-i18n="empty.title">Start a conversation</div>
+		<div class="messages-empty-hint" data-i18n="empty.hint">Type a message below or use <code>Ctrl+K</code> for the command palette.</div>
+	</div>
+
+	<!-- ─────────── Scroll affordance ─────────── -->
+	<button id="scroll-down" class="scroll-down-btn hidden" data-i18n-attr-title="scroll.bottom" title="Scroll to latest" aria-label="Scroll to latest">↓</button>
+	<div id="autoscroll-indicator" class="autoscroll-indicator hidden" data-i18n="autoscroll.off">autoscroll off</div>
+
+	<!-- ─────────── Composer ─────────── -->
+	<footer class="composer">
+		<!-- Slash-command autocomplete popup (positioned via JS) -->
+		<div id="slash-menu" class="slash-menu hidden" role="listbox" aria-label="Slash commands"></div>
+
+		<div id="image-preview" class="image-preview hidden"></div>
+		<div class="composer-row">
+			<div class="composer-side composer-side-left">
+				<button id="attach" class="icon-btn" data-i18n-attr-title="composer.attach" title="Attach image (Ctrl+U)" aria-label="Attach image">📎</button>
+				<input id="file-input" type="file" accept="image/png,image/jpeg,image/gif,image/webp" hidden />
+			</div>
+			<textarea
+				id="composer"
+				class="composer-input"
+				rows="2"
+				data-i18n-attr-placeholder="composer.placeholder"
+				placeholder="Type a message to the agent. Enter sends, Shift+Enter newline. / opens commands. Ctrl+K for palette."
+			></textarea>
+			<div class="composer-side composer-side-right">
+				<button id="expand-composer" class="icon-btn" data-i18n-attr-title="composer.expand" title="Expand composer" aria-label="Expand">⤢</button>
+			</div>
+		</div>
+		<div class="composer-row composer-actions">
+			<div class="composer-actions-left">
+				<span id="composer-hint" class="hint"></span>
+			</div>
+			<div class="composer-actions-right">
+				<button id="follow-up" class="btn btn-ghost" data-i18n="composer.followup" data-i18n-attr-title="composer.followup.title" title="Follow up after turn (Ctrl+Shift+Enter)">follow up</button>
+				<button id="steer" class="btn" data-i18n="composer.steer" data-i18n-attr-title="composer.steer.title" title="Steer mid-turn (Ctrl+.)">steer</button>
+				<button id="send" class="btn btn-primary" data-i18n="composer.send" data-i18n-attr-title="composer.send.title" title="Send message (Enter)" disabled>send</button>
+			</div>
+		</div>
+	</footer>
+
+	<!-- ─────────── Powerline status bar (PowerBar parity) ─────────── -->
+	<footer class="powerbar" id="powerbar">
+		<div class="powerbar-segments" id="powerbar-segments">
+			<span class="pb-seg pb-git" id="pb-git" hidden></span>
+			<span class="pb-seg pb-context" id="pb-context" hidden></span>
+			<span class="pb-seg pb-tokens" id="pb-tokens" hidden></span>
+			<span class="pb-seg pb-sub" id="pb-sub" hidden></span>
+			<span class="pb-seg pb-model" id="pb-model" hidden></span>
+		</div>
+	</footer>
+
+	<!-- ───────── Settings dialog ─────────── -->
+	<div id="settings-dialog" class="dialog-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+		<div class="dialog">
+			<h2 id="settings-title" data-i18n="settings.title">pi-webui settings</h2>
+			<div class="form-row">
+				<label for="cfg-host" data-i18n="settings.host">bridge host</label>
+				<input id="cfg-host" type="text" class="text-input" />
+			</div>
+			<div class="form-row">
+				<label for="cfg-port" data-i18n="settings.port">bridge port</label>
+				<input id="cfg-port" type="number" min="1" max="65535" class="text-input" />
+			</div>
+			<div class="form-row form-check">
+				<input id="cfg-auto-reconnect" type="checkbox" />
+				<label for="cfg-auto-reconnect" data-i18n="settings.auto-reconnect">auto-reconnect on disconnect</label>
+			</div>
+			<div class="form-row form-check">
+				<input id="cfg-show-tool-calls" type="checkbox" />
+				<label for="cfg-show-tool-calls" data-i18n="settings.show-tools">show tool calls</label>
+			</div>
+			<div class="form-row form-check">
+				<input id="cfg-show-thinking" type="checkbox" />
+				<label for="cfg-show-thinking" data-i18n="settings.show-thinking">show thinking blocks</label>
+			</div>
+			<div class="form-row form-check">
+				<input id="cfg-autoscroll" type="checkbox" />
+				<label for="cfg-autoscroll" data-i18n="settings.autoscroll">autoscroll on new messages</label>
+			</div>
+			<div class="form-row form-check">
+				<input id="cfg-markdown" type="checkbox" />
+				<label for="cfg-markdown" data-i18n="settings.markdown">render markdown</label>
+			</div>
+			<div class="form-row form-check">
+				<input id="cfg-collapse-tools" type="checkbox" />
+				<label for="cfg-collapse-tools" data-i18n="settings.collapse-tools">collapse tool output by default</label>
+			</div>
+			<div class="dialog-actions">
+				<button id="settings-cancel" class="btn btn-ghost" data-i18n="settings.cancel">cancel</button>
+				<button id="settings-save" class="btn btn-primary" data-i18n="settings.save">save</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- ─────────── Context dialog (mirrors TUI `/context`) ─────────── -->
+	<div id="context-dialog" class="dialog-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="context-title">
+		<div class="dialog dialog-context">
+			<div class="dialog-header">
+				<h2 id="context-title" data-i18n="context.title">Context usage</h2>
+				<button id="context-close" class="icon-btn" aria-label="Close">✕</button>
+			</div>
+			<div id="context-tabs" class="context-tabs">
+				<button id="context-tab-usage" class="context-tab active" data-i18n="context.tab-usage">usage</button>
+				<button id="context-tab-injections" class="context-tab" data-i18n="context.tab-injections">injections</button>
+			</div>
+			<div id="context-summary" class="context-summary"></div>
+			<div id="context-usage-body" class="context-body"></div>
+			<div id="context-injections-body" class="context-body hidden"></div>
+			<div id="context-error" class="context-error hidden"></div>
+			<div class="dialog-actions">
+				<button id="context-refresh" class="btn btn-primary" data-i18n="context.refresh">refresh</button>
+			</div>
+		</div>
+	</div>
+	<!-- ─────────── Ask-user-question dialog ─────────── -->
+	<div id="ask-dialog" class="dialog-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="ask-title">
+		<div class="dialog dialog-ask">
+			<div class="dialog-header">
+				<h2 id="ask-title" data-i18n="ask.title">Ask user</h2>
+				<button id="ask-close" class="icon-btn" aria-label="Close">✕</button>
+			</div>
+			<div id="ask-body" class="ask-body"></div>
+			<div id="ask-error" class="ask-error hidden"></div>
+			<div class="dialog-actions">
+				<button id="ask-cancel" class="btn" data-i18n="ask.cancel">Cancel</button>
+				<button id="ask-submit" class="btn btn-primary" data-i18n="ask.submit">Submit</button>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- ─────────── Help dialog (F1) ─────────── -->
+	<div id="help-dialog" class="dialog-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+		<div class="dialog dialog-help">
+			<div class="dialog-header">
+				<h2 id="help-title" data-i18n="help.title">Keyboard shortcuts</h2>
+				<button id="help-close" class="icon-btn" aria-label="Close">✕</button>
+			</div>
+			<div id="help-body" class="help-body"></div>
+		</div>
+	</div>
+
+	<!-- ─────────── Prompt dialog (for commands that need input) ─────────── -->
+	<div id="prompt-dialog" class="dialog-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="prompt-title">
+		<div class="dialog dialog-small">
+			<h2 id="prompt-title"></h2>
+			<p id="prompt-description" class="hint"></p>
+			<input id="prompt-input" type="text" class="text-input prompt-input" />
+			<div id="prompt-error" class="hint error hidden"></div>
+			<div class="dialog-actions">
+				<button id="prompt-cancel" class="btn btn-ghost" data-i18n="prompt.cancel">cancel</button>
+				<button id="prompt-ok" class="btn btn-primary" data-i18n="prompt.ok">ok</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- ─────────── Toast container ─────────── -->
+	<div id="toasts" class="toasts" aria-live="polite"></div>
+
+	<!-- ─────────── Context menu (right-click on bubble) ─────────── -->
+	<div id="context-menu" class="context-menu hidden" role="menu"></div>
+
+	<!-- ─────────── Loading overlay (initial connect) ─────────── -->
+	<div id="loading-overlay" class="loading-overlay hidden">
+		<div class="loading-spinner" aria-hidden="true"></div>
+		<div class="loading-text" data-i18n="loading.connecting">connecting…</div>
+	</div>
+
+	<script type="module" src="app.js"></script>
+</body>
+</html>

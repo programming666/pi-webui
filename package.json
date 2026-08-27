@@ -1,0 +1,46 @@
+{
+	"name": "@failed-to-load/pi-webui",
+	"version": "0.1.0",
+	"description": "Web UI bridge for Pi coding agent — exposes the agent session over HTTP/WebSocket so a browser extension (or any HTTP+WS client) can drive the TUI.",
+	"type": "module",
+	"license": "MIT",
+	"keywords": [
+		"pi",
+		"pi-coding-agent",
+		"webui",
+		"extension",
+		"websocket"
+	],
+	"files": [
+		"src",
+		"dist",
+		"README.md",
+		"README.zh-CN.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"build": "tsc && node scripts/copy-ui.mjs",
+		"clean": "rm -rf dist",
+		"prepublishOnly": "npm run build"
+	},
+	"dependencies": {
+		"ws": "^8.18.0"
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*"
+	},
+	"devDependencies": {
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*",
+		"@types/node": "^22.0.0",
+		"@types/ws": "^8.5.12",
+		"typescript": "^5.6.0"
+	},
+	"pi": {
+		"extensions": [
+			"./src/index.ts"
+		]
+	}
+}

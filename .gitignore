@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Local pi config
+.pi/
+
+# Build artifacts (regenerate with `npm run build`)
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# npm pack artifacts
+*.tgz
