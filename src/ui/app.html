@@ -7,18 +7,33 @@
 	<meta name="description" data-i18n="description" content="Browser companion for the pi agent webui extension" />
 	<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'&gt;&lt;rect width='32' height='32' rx='6' fill='%234f8cf7'/&gt;&lt;text x='16' y='23' font-size='18' text-anchor='middle' fill='white' font-family='system-ui' font-weight='600'&gt;π&lt;/text&gt;&lt;/svg&gt;" />
 	<link rel="stylesheet" href="app.css" />
-	<script>window.MathJax = { tex: { inlineMath: [['\\\\(','\\\\)'], ['$','$']], displayMath: [['\\\\[','\\\\]'], ['$$','$$']] }, options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }, startup: { elements: [] } };</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-	<script>// MathJax 加载完成后,对现有消息全量 typeset 一次(replay 时可能比 MathJax 先完成)
-	if (window.MathJax && window.MathJax.startup) {
-		window.MathJax.startup.promise = window.MathJax.startup.promise.then(() => {
-			setTimeout(() => {
-				var m = document.getElementById('messages');
-				if (m && window.MathJax.typesetPromise) window.MathJax.typesetPromise([m]).catch(function () {});
-			}, 800);
-			return window.MathJax.startup.originalPromise || Promise.resolve();
-		});
-	}</script>
+	<script>window.MathJax = { tex: { inlineMath: [['\\(' , '\\)'], ['$','$']], displayMath: [['\\[','\\]'], ['$$','$$']] }, options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }, startup: { elements: [] } };</script>
+	<script>
+		// MathJax CDN 多源回退:jsdelivr 偶发不可达,依次尝试 cdnjs → unpkg
+		// onload 后延迟对现有消息全量 typeset(避免依赖 startup.promise 导致的 undefined.then)
+		(function () {
+			var cdns = [
+				'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js',
+				'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js',
+				'https://unpkg.com/mathjax@3/es5/tex-chtml.js'
+			];
+			var i = 0;
+			(function next() {
+				if (i >= cdns.length) return;
+				var s = document.createElement('script');
+				s.async = true;
+				s.src = cdns[i++];
+				s.onload = function () {
+					setTimeout(function () {
+						var m = document.getElementById('messages');
+						if (m && window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([m]).catch(function () {});
+					}, 800);
+				};
+				s.onerror = function () { s.remove(); next(); };
+				document.head.appendChild(s);
+			})();
+		})();
+	</script>
 </head>
 <body>
 	<!-- ─────────── Top bar ─────────── -->
